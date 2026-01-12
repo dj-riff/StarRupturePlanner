@@ -2,6 +2,9 @@
 
 A production chain calculator for the game Star Rupture, helping players optimize their factory setups.
 
+## AI-Generated
+This repository is more of an experiment to see what AI can do. There is 0 human code here, it's entirely built by AI.
+
 ## 🌐 Web Version
 
 **Try it now:** [https://dj-riff.github.io/StarRupturePlanner/](https://dj-riff.github.io/StarRupturePlanner/)
