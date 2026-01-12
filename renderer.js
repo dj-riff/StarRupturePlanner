@@ -2028,7 +2028,11 @@ function loadState() {
         summary: '',
         layout: null,
         element: containerDiv,
-        selectedTargets: tabInfo.selectedTargets || []
+        selectedTargets: tabInfo.selectedTargets || [],
+        externalSupply: tabInfo.externalSupply || {},
+        supplyAutoscale: !!tabInfo.supplyAutoscale,
+        byproducts: tabInfo.byproducts || {},
+        byproductSuggestions: tabInfo.byproductSuggestions || []
       };
       tabs.push(tab);
     });
@@ -2119,6 +2123,39 @@ clearTargetsBtn.addEventListener('click', () => {
 computeBtn.addEventListener('click', () => {
   compute();
 });
+
+// Event listeners for external supply
+if (addSupplyBtnEl) {
+  addSupplyBtnEl.addEventListener('click', () => {
+    addSupplyFromInputs();
+  });
+}
+if (supplyInputEl) {
+  supplyInputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      addSupplyFromInputs();
+      e.preventDefault();
+    }
+  });
+}
+if (supplyRateEl) {
+  supplyRateEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      addSupplyFromInputs();
+      e.preventDefault();
+    }
+  });
+}
+if (supplyAutoscaleEl) {
+  supplyAutoscaleEl.addEventListener('change', () => {
+    const tab = getActiveTab();
+    if (tab) {
+      tab.supplyAutoscale = supplyAutoscaleEl.checked;
+      saveState();
+      compute();
+    }
+  });
+}
 
 /*
 // Build textual representation of results for copy/export
