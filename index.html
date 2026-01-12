@@ -19,6 +19,24 @@
         <input type="text" id="target-input" placeholder="Type recipe name..." autocomplete="off" list="recipe-datalist" />
         <datalist id="recipe-datalist"></datalist>
         <button id="clear-targets-btn" title="Clear all targets">Clear</button>
+        
+        <!-- External Supply Section -->
+        <div class="supply-section">
+          <div class="supply-header">
+            <label>Available Input Resources</label>
+            <div class="supply-autoscale">
+              <input type="checkbox" id="supply-autoscale" />
+              <label for="supply-autoscale">Auto-scale</label>
+            </div>
+          </div>
+          <div id="supply-list" class="supply-list"></div>
+          <div class="supply-inputs">
+            <input type="text" id="supply-input" placeholder="Resource name..." autocomplete="off" list="resource-datalist" />
+            <datalist id="resource-datalist"></datalist>
+            <input type="number" id="supply-rate" placeholder="Rate/min" min="0" step="0.01" />
+            <button id="add-supply-btn">Add</button>
+          </div>
+        </div>
       </div>
       <div class="global-options">
         <button id="compute-btn" class="primary">Compute</button>
