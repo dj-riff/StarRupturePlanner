@@ -5,6 +5,7 @@ const recipeData = `Machine	Recipe	Processing Time	Out	Per Minute	Resource 1	Amo
 Ore Extractor	Wolfram Ore (Impure)	2	2	60	N/A				
 Ore Extractor	Titanium Ore (Impure)	2	2	60	N/A				
 Ore Extractor	Titanium Ore (Normal)	2	4	120	N/A				
+Helium Extractor	Helium-3	2	8	240	N/A				
 Smelter	Titanium Bar	2	2	60	Titanium Ore				
 Smelter	Wolfram Bar	2	2	60	Wolfram Ore				
 Smelter	Calcium Block	2	2	60	Calcium Ore				
