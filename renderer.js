@@ -607,6 +607,9 @@ const GRAPH_NODE_WIDTH = 200;
 const GRAPH_NODE_HEIGHT = 80;
 const GRAPH_H_SPACING = 180;
 const GRAPH_V_SPACING = 60;
+// Padding around the graph canvas to prevent edge clipping when nodes
+// are dragged to boundaries. This ensures arrows and labels remain visible.
+const GRAPH_CANVAS_PADDING = 100;
 
 // Grab references to DOM elements used in the dark themed interface
 const recipeDatalist = document.getElementById('recipe-datalist');
@@ -1341,10 +1344,10 @@ function renderGraphInContainer(layout, container) {
   if (!layout || !layout.nodes || layout.nodes.length === 0) {
     return;
   }
-  // Create SVG for edges
+  // Create SVG for edges with extra padding to prevent edge clipping
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', layout.width);
-  svg.setAttribute('height', layout.height);
+  svg.setAttribute('width', layout.width + GRAPH_CANVAS_PADDING);
+  svg.setAttribute('height', layout.height + GRAPH_CANVAS_PADDING);
   svg.style.position = 'absolute';
   svg.style.top = '0';
   svg.style.left = '0';
@@ -1439,27 +1442,37 @@ function renderGraphInContainer(layout, container) {
   // underlying content area) grows to fit them so edges and labels
   // are not cut off.  It is called initially and during dragging.
   function updateBoundary() {
+    let minX = 0;
+    let minY = 0;
     let maxX = 0;
     let maxY = 0;
     Object.keys(nodePos).forEach(key => {
       const pos = nodePos[key];
+      // Track minimum positions for nodes dragged to negative coordinates
+      // Note: For nodes at negative coordinates, proper rendering would require
+      // translating the entire SVG content. Current implementation handles the
+      // common case of dragging towards positive boundaries (right/bottom edges).
+      if (pos.x < minX) minX = pos.x;
+      if (pos.y < minY) minY = pos.y;
       // Include the node's width and height in the bounding box
       const right = pos.x + GRAPH_NODE_WIDTH;
       const bottom = pos.y + GRAPH_NODE_HEIGHT;
       if (right > maxX) maxX = right;
       if (bottom > maxY) maxY = bottom;
     });
+    // Add padding on all sides (multiply by 2 for both left and right, top and bottom)
+    const newWidth = maxX - minX + GRAPH_CANVAS_PADDING * 2;
+    const newHeight = maxY - minY + GRAPH_CANVAS_PADDING * 2;
     // Only update if larger than current size to avoid shrink
     const currentW = parseFloat(svg.getAttribute('width')) || 0;
     const currentH = parseFloat(svg.getAttribute('height')) || 0;
-    if (maxX > currentW) {
-      svg.setAttribute('width', maxX);
-      // Expand the content width so that node divs are contained
-      content.style.width = maxX + 'px';
+    if (newWidth > currentW) {
+      svg.setAttribute('width', newWidth);
+      content.style.width = newWidth + 'px';
     }
-    if (maxY > currentH) {
-      svg.setAttribute('height', maxY);
-      content.style.height = maxY + 'px';
+    if (newHeight > currentH) {
+      svg.setAttribute('height', newHeight);
+      content.style.height = newHeight + 'px';
     }
   }
 
