@@ -457,6 +457,31 @@ function mergeResults(results, targetOrder) {
       y
     });
   });
+  // Detect and resolve overlapping nodes.  Nodes at the same depth
+  // (x-coordinate) that overlap vertically are repositioned by moving
+  // them down while maintaining their horizontal alignment.  This
+  // ensures that all nodes are visible and clearly separated.
+  // Group nodes by their x-coordinate (depth column)
+  const nodesByX = {};
+  layoutNodes.forEach(node => {
+    if (!nodesByX[node.x]) nodesByX[node.x] = [];
+    nodesByX[node.x].push(node);
+  });
+  // For each column, sort by y and resolve overlaps
+  Object.keys(nodesByX).forEach(xCoord => {
+    const nodesInColumn = nodesByX[xCoord];
+    // Sort by current y position
+    nodesInColumn.sort((a, b) => a.y - b.y);
+    // Adjust positions to prevent overlap, maintaining minimum spacing
+    for (let i = 1; i < nodesInColumn.length; i++) {
+      const prevNode = nodesInColumn[i - 1];
+      const currNode = nodesInColumn[i];
+      const minY = prevNode.y + GRAPH_NODE_HEIGHT + GRAPH_V_SPACING;
+      if (currNode.y < minY) {
+        currNode.y = minY;
+      }
+    }
+  });
   // Build edges for aggregated graph.  We create a new list of edge
   // objects with coordinates and labels based on aggregated rates.
   const edges = [];
@@ -572,7 +597,7 @@ function mergeResults(results, targetOrder) {
 // branching paths remain readable without spreading too far apart.
 const GRAPH_NODE_WIDTH = 200;
 const GRAPH_NODE_HEIGHT = 80;
-const GRAPH_H_SPACING = 120;
+const GRAPH_H_SPACING = 180;
 const GRAPH_V_SPACING = 60;
 
 // Grab references to DOM elements used in the dark themed interface
