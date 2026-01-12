@@ -253,6 +253,37 @@ function getMaxDepth(node) {
 }
 
 /**
+ * Resolve overlapping nodes by adjusting their vertical positions.
+ * Nodes at the same depth (x-coordinate) that would overlap are
+ * repositioned vertically while maintaining their horizontal alignment.
+ *
+ * @param {Array} layoutNodes Array of nodes with x, y coordinates
+ */
+function resolveNodeOverlaps(layoutNodes) {
+  // Group nodes by their x-coordinate (depth column)
+  const nodesByX = {};
+  layoutNodes.forEach(node => {
+    if (!nodesByX[node.x]) nodesByX[node.x] = [];
+    nodesByX[node.x].push(node);
+  });
+  // For each column, sort by y and resolve overlaps
+  Object.keys(nodesByX).forEach(xCoord => {
+    const nodesInColumn = nodesByX[xCoord];
+    // Sort by current y position
+    nodesInColumn.sort((a, b) => a.y - b.y);
+    // Adjust positions to prevent overlap, maintaining minimum spacing
+    for (let i = 1; i < nodesInColumn.length; i++) {
+      const prevNode = nodesInColumn[i - 1];
+      const currNode = nodesInColumn[i];
+      const minY = prevNode.y + GRAPH_NODE_HEIGHT + GRAPH_V_SPACING;
+      if (currNode.y < minY) {
+        currNode.y = minY;
+      }
+    }
+  });
+}
+
+/**
  * Merge multiple production chains into a single aggregated graph.
  * Duplicate recipes and resources across different target chains are
  * merged into a single node whose required and actual outputs are
@@ -457,6 +488,8 @@ function mergeResults(results, targetOrder) {
       y
     });
   });
+  // Detect and resolve overlapping nodes at the same depth
+  resolveNodeOverlaps(layoutNodes);
   // Build edges for aggregated graph.  We create a new list of edge
   // objects with coordinates and labels based on aggregated rates.
   const edges = [];
@@ -572,7 +605,7 @@ function mergeResults(results, targetOrder) {
 // branching paths remain readable without spreading too far apart.
 const GRAPH_NODE_WIDTH = 200;
 const GRAPH_NODE_HEIGHT = 80;
-const GRAPH_H_SPACING = 120;
+const GRAPH_H_SPACING = 180;
 const GRAPH_V_SPACING = 60;
 
 // Grab references to DOM elements used in the dark themed interface
@@ -2028,7 +2061,11 @@ function loadState() {
         summary: '',
         layout: null,
         element: containerDiv,
-        selectedTargets: tabInfo.selectedTargets || []
+        selectedTargets: tabInfo.selectedTargets || [],
+        externalSupply: tabInfo.externalSupply || {},
+        supplyAutoscale: !!tabInfo.supplyAutoscale,
+        byproducts: tabInfo.byproducts || {},
+        byproductSuggestions: tabInfo.byproductSuggestions || []
       };
       tabs.push(tab);
     });
@@ -2119,6 +2156,39 @@ clearTargetsBtn.addEventListener('click', () => {
 computeBtn.addEventListener('click', () => {
   compute();
 });
+
+// Event listeners for external supply
+if (addSupplyBtnEl) {
+  addSupplyBtnEl.addEventListener('click', () => {
+    addSupplyFromInputs();
+  });
+}
+if (supplyInputEl) {
+  supplyInputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      addSupplyFromInputs();
+      e.preventDefault();
+    }
+  });
+}
+if (supplyRateEl) {
+  supplyRateEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      addSupplyFromInputs();
+      e.preventDefault();
+    }
+  });
+}
+if (supplyAutoscaleEl) {
+  supplyAutoscaleEl.addEventListener('change', () => {
+    const tab = getActiveTab();
+    if (tab) {
+      tab.supplyAutoscale = supplyAutoscaleEl.checked;
+      saveState();
+      compute();
+    }
+  });
+}
 
 /*
 // Build textual representation of results for copy/export
