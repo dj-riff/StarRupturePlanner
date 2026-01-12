@@ -614,6 +614,40 @@ input[type="checkbox"] {
 }
 .supply-row button:hover{ border-color: rgba(255,255,255,0.25); }
 
+/* Supply input controls */
+.supply-inputs{
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+.supply-inputs input[type="text"],
+.supply-inputs input[type="number"]{
+  background: #1f3b5a;
+  color: #e0e6ed;
+  border: 1px solid #334e6e;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 0.85rem;
+}
+.supply-inputs input[type="text"]{
+  flex: 1;
+}
+.supply-inputs input[type="number"]{
+  width: 100px;
+}
+.supply-inputs button{
+  background: #4b79a1;
+  color: #e0e6ed;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.supply-inputs button:hover{
+  background: #3a5c79;
+}
+
 /* Byproducts panel */
 .byproducts-panel{
   margin-top: 10px;
