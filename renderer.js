@@ -1341,10 +1341,11 @@ function renderGraphInContainer(layout, container) {
   if (!layout || !layout.nodes || layout.nodes.length === 0) {
     return;
   }
-  // Create SVG for edges
+  // Create SVG for edges with extra padding to prevent edge clipping
+  const INITIAL_PADDING = 100;
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', layout.width);
-  svg.setAttribute('height', layout.height);
+  svg.setAttribute('width', layout.width + INITIAL_PADDING);
+  svg.setAttribute('height', layout.height + INITIAL_PADDING);
   svg.style.position = 'absolute';
   svg.style.top = '0';
   svg.style.left = '0';
@@ -1439,27 +1440,35 @@ function renderGraphInContainer(layout, container) {
   // underlying content area) grows to fit them so edges and labels
   // are not cut off.  It is called initially and during dragging.
   function updateBoundary() {
+    let minX = 0;
+    let minY = 0;
     let maxX = 0;
     let maxY = 0;
     Object.keys(nodePos).forEach(key => {
       const pos = nodePos[key];
+      // Track minimum positions for nodes dragged to negative coordinates
+      if (pos.x < minX) minX = pos.x;
+      if (pos.y < minY) minY = pos.y;
       // Include the node's width and height in the bounding box
       const right = pos.x + GRAPH_NODE_WIDTH;
       const bottom = pos.y + GRAPH_NODE_HEIGHT;
       if (right > maxX) maxX = right;
       if (bottom > maxY) maxY = bottom;
     });
+    // Add padding around the content to ensure edges/labels are visible
+    const PADDING = 100;
+    const newWidth = maxX - minX + PADDING * 2;
+    const newHeight = maxY - minY + PADDING * 2;
     // Only update if larger than current size to avoid shrink
     const currentW = parseFloat(svg.getAttribute('width')) || 0;
     const currentH = parseFloat(svg.getAttribute('height')) || 0;
-    if (maxX > currentW) {
-      svg.setAttribute('width', maxX);
-      // Expand the content width so that node divs are contained
-      content.style.width = maxX + 'px';
+    if (newWidth > currentW) {
+      svg.setAttribute('width', newWidth);
+      content.style.width = newWidth + 'px';
     }
-    if (maxY > currentH) {
-      svg.setAttribute('height', maxY);
-      content.style.height = maxY + 'px';
+    if (newHeight > currentH) {
+      svg.setAttribute('height', newHeight);
+      content.style.height = newHeight + 'px';
     }
   }
 
