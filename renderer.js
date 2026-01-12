@@ -607,6 +607,9 @@ const GRAPH_NODE_WIDTH = 200;
 const GRAPH_NODE_HEIGHT = 80;
 const GRAPH_H_SPACING = 180;
 const GRAPH_V_SPACING = 60;
+// Padding around the graph canvas to prevent edge clipping when nodes
+// are dragged to boundaries. This ensures arrows and labels remain visible.
+const GRAPH_CANVAS_PADDING = 100;
 
 // Grab references to DOM elements used in the dark themed interface
 const recipeDatalist = document.getElementById('recipe-datalist');
@@ -1342,10 +1345,9 @@ function renderGraphInContainer(layout, container) {
     return;
   }
   // Create SVG for edges with extra padding to prevent edge clipping
-  const INITIAL_PADDING = 100;
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', layout.width + INITIAL_PADDING);
-  svg.setAttribute('height', layout.height + INITIAL_PADDING);
+  svg.setAttribute('width', layout.width + GRAPH_CANVAS_PADDING);
+  svg.setAttribute('height', layout.height + GRAPH_CANVAS_PADDING);
   svg.style.position = 'absolute';
   svg.style.top = '0';
   svg.style.left = '0';
@@ -1455,10 +1457,9 @@ function renderGraphInContainer(layout, container) {
       if (right > maxX) maxX = right;
       if (bottom > maxY) maxY = bottom;
     });
-    // Add padding around the content to ensure edges/labels are visible
-    const PADDING = 100;
-    const newWidth = maxX - minX + PADDING * 2;
-    const newHeight = maxY - minY + PADDING * 2;
+    // Add padding on all sides (multiply by 2 for both left and right, top and bottom)
+    const newWidth = maxX - minX + GRAPH_CANVAS_PADDING * 2;
+    const newHeight = maxY - minY + GRAPH_CANVAS_PADDING * 2;
     // Only update if larger than current size to avoid shrink
     const currentW = parseFloat(svg.getAttribute('width')) || 0;
     const currentH = parseFloat(svg.getAttribute('height')) || 0;
