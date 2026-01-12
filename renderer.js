@@ -1449,6 +1449,9 @@ function renderGraphInContainer(layout, container) {
     Object.keys(nodePos).forEach(key => {
       const pos = nodePos[key];
       // Track minimum positions for nodes dragged to negative coordinates
+      // Note: For nodes at negative coordinates, proper rendering would require
+      // translating the entire SVG content. Current implementation handles the
+      // common case of dragging towards positive boundaries (right/bottom edges).
       if (pos.x < minX) minX = pos.x;
       if (pos.y < minY) minY = pos.y;
       // Include the node's width and height in the bounding box
