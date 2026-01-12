@@ -99,33 +99,6 @@ function computeModeB(recipeName, finalMachineCount, autoScale, externalSupply, 
     const denominators = [];
     for (const input of recipe.inputs) {
       const upstream = recipeBook[input.resource];
-    if (!upstream) {
-      children.push({
-        recipeName: input.resource,
-        machineName: 'Raw',
-        exactMachines: 0,
-        wholeMachines: 0,
-        utilisation: 1,
-        requiredOutputPerMin: requiredInputPerMinTotal,
-        actualOutputPerMin: requiredInputPerMinTotal,
-        cls: 'raw'
-      });
-      return;
-    }
-    if (requiredInputPerMin <= 0) {
-      children.push({
-        recipeName: input.resource,
-        machineName: 'External',
-        exactMachines: 0,
-        wholeMachines: 0,
-        utilisation: 1,
-        requiredOutputPerMin: requiredInputPerMinTotal,
-        actualOutputPerMin: requiredInputPerMinTotal,
-        suppliedPerMin: suppliedNow,
-        cls: 'supply'
-      });
-      return;
-    }
       if (!upstream) continue;
       // numerator = final * amount * processing_time_upstream
       const numerator = scaledFinal * input.amount * upstream.processingTime;
@@ -174,7 +147,7 @@ function buildNodeB(recipe, machineCount, path, externalSupply, supplyUsed) {
         actualOutputPerMin: requiredInputPerMinTotal,
         cls: 'raw'
       });
-      return;
+      continue;
     }
     if (requiredInputPerMin <= 0) {
       children.push({
@@ -188,7 +161,7 @@ function buildNodeB(recipe, machineCount, path, externalSupply, supplyUsed) {
         suppliedPerMin: suppliedNow,
         cls: 'supply'
       });
-      return;
+      continue;
     }
     if (!upstream) {
       children.push({
@@ -245,8 +218,10 @@ function summariseMachines(node, totals = {}) {
     // Use the whole machine count (integer machines) instead of exact
     totals[node.machineName] = (totals[node.machineName] || 0) + node.wholeMachines;
   }
-  for (const child of node.inputs) {
-    summariseMachines(child, totals);
+  if (node.inputs && Array.isArray(node.inputs)) {
+    for (const child of node.inputs) {
+      summariseMachines(child, totals);
+    }
   }
   return totals;
 }
@@ -959,9 +934,39 @@ function renderSelectedTargets() {
         input.value = t.rate;
         return;
       }
+      t.rate = val;
+      saveState();
+    });
+    tag.appendChild(input);
+    // Rate units suffix
+    const suffix = document.createElement('span');
+    suffix.classList.add('rate-suffix');
+    suffix.textContent = '/min';
+    tag.appendChild(suffix);
+    // Remove button
+    const remove = document.createElement('span');
+    remove.classList.add('remove');
+    remove.innerHTML = '&times;';
+    remove.title = 'Remove';
+    remove.addEventListener('click', () => {
+      activeTab.selectedTargets.splice(idx, 1);
+      renderSelectedTargets();
+      renderSupplyUI();
+      renderByproductsUI();
+      saveState();
+    });
+    tag.appendChild(remove);
+    selectedTargetsEl.appendChild(tag);
+  });
+}
 
+/**
+ * Render the supply UI for external resource supply settings.
+ */
 function renderSupplyUI() {
-    if (supplyAutoscaleEl) supplyAutoscaleEl.checked = !!tab.supplyAutoscale;
+  const tab = getActiveTab();
+  if (!tab) return;
+  if (supplyAutoscaleEl) supplyAutoscaleEl.checked = !!tab.supplyAutoscale;
   if (!supplyListEl) return;
   supplyListEl.innerHTML = '';
   const entries = Object.entries(tab.externalSupply || {}).sort((a,b)=>a[0].localeCompare(b[0]));
@@ -999,6 +1004,9 @@ function renderSupplyUI() {
   });
 }
 
+/**
+ * Add a supply from the input fields.
+ */
 function addSupplyFromInputs() {
   const tab = getActiveTab();
   if (!tab) return;
@@ -1011,32 +1019,6 @@ function addSupplyFromInputs() {
   saveState();
   renderSupplyUI();
   compute();
-}
-
-      t.rate = val;
-      saveState();
-    });
-    tag.appendChild(input);
-    // Rate units suffix
-    const suffix = document.createElement('span');
-    suffix.classList.add('rate-suffix');
-    suffix.textContent = '/min';
-    tag.appendChild(suffix);
-    // Remove button
-    const remove = document.createElement('span');
-    remove.classList.add('remove');
-    remove.innerHTML = '&times;';
-    remove.title = 'Remove';
-    remove.addEventListener('click', () => {
-      activeTab.selectedTargets.splice(idx, 1);
-      renderSelectedTargets();
-  renderSupplyUI();
-  renderByproductsUI();
-      saveState();
-    });
-    tag.appendChild(remove);
-    selectedTargetsEl.appendChild(tag);
-  });
 }
 
 /**
@@ -1209,9 +1191,6 @@ function compute() {
   const autoScale = false;
   const results = [];
   const summaryLines = [];
-
-  const tab = getActiveTab();
-  if (!tab) return;
 
   const externalSupply = tab.externalSupply || {};
   const supplyUsed = {};
