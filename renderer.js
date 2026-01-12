@@ -253,6 +253,37 @@ function getMaxDepth(node) {
 }
 
 /**
+ * Resolve overlapping nodes by adjusting their vertical positions.
+ * Nodes at the same depth (x-coordinate) that would overlap are
+ * repositioned vertically while maintaining their horizontal alignment.
+ *
+ * @param {Array} layoutNodes Array of nodes with x, y coordinates
+ */
+function resolveNodeOverlaps(layoutNodes) {
+  // Group nodes by their x-coordinate (depth column)
+  const nodesByX = {};
+  layoutNodes.forEach(node => {
+    if (!nodesByX[node.x]) nodesByX[node.x] = [];
+    nodesByX[node.x].push(node);
+  });
+  // For each column, sort by y and resolve overlaps
+  Object.keys(nodesByX).forEach(xCoord => {
+    const nodesInColumn = nodesByX[xCoord];
+    // Sort by current y position
+    nodesInColumn.sort((a, b) => a.y - b.y);
+    // Adjust positions to prevent overlap, maintaining minimum spacing
+    for (let i = 1; i < nodesInColumn.length; i++) {
+      const prevNode = nodesInColumn[i - 1];
+      const currNode = nodesInColumn[i];
+      const minY = prevNode.y + GRAPH_NODE_HEIGHT + GRAPH_V_SPACING;
+      if (currNode.y < minY) {
+        currNode.y = minY;
+      }
+    }
+  });
+}
+
+/**
  * Merge multiple production chains into a single aggregated graph.
  * Duplicate recipes and resources across different target chains are
  * merged into a single node whose required and actual outputs are
@@ -457,31 +488,8 @@ function mergeResults(results, targetOrder) {
       y
     });
   });
-  // Detect and resolve overlapping nodes.  Nodes at the same depth
-  // (x-coordinate) that overlap vertically are repositioned by moving
-  // them down while maintaining their horizontal alignment.  This
-  // ensures that all nodes are visible and clearly separated.
-  // Group nodes by their x-coordinate (depth column)
-  const nodesByX = {};
-  layoutNodes.forEach(node => {
-    if (!nodesByX[node.x]) nodesByX[node.x] = [];
-    nodesByX[node.x].push(node);
-  });
-  // For each column, sort by y and resolve overlaps
-  Object.keys(nodesByX).forEach(xCoord => {
-    const nodesInColumn = nodesByX[xCoord];
-    // Sort by current y position
-    nodesInColumn.sort((a, b) => a.y - b.y);
-    // Adjust positions to prevent overlap, maintaining minimum spacing
-    for (let i = 1; i < nodesInColumn.length; i++) {
-      const prevNode = nodesInColumn[i - 1];
-      const currNode = nodesInColumn[i];
-      const minY = prevNode.y + GRAPH_NODE_HEIGHT + GRAPH_V_SPACING;
-      if (currNode.y < minY) {
-        currNode.y = minY;
-      }
-    }
-  });
+  // Detect and resolve overlapping nodes at the same depth
+  resolveNodeOverlaps(layoutNodes);
   // Build edges for aggregated graph.  We create a new list of edge
   // objects with coordinates and labels based on aggregated rates.
   const edges = [];
