@@ -1,0 +1,12 @@
+{
+  "name": "star-rupture-production-planner",
+  "version": "1.0.0",
+  "description": "Star Rupture Production Planner Electron App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^28.2.5"
+  }
+}

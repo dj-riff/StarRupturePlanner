@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Star Rupture Production Planner</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Star Rupture Production Planner</h1>
+  </header>
+  <main id="app">
+    <!-- Top bar: target selection and compute options -->
+    <div class="panel controls">
+      <div class="target-selection">
+        <label for="target-input">Target Recipes</label>
+        <div id="selected-targets" class="selected-targets"></div>
+        <input type="text" id="target-input" placeholder="Type recipe name..." autocomplete="off" list="recipe-datalist" />
+        <datalist id="recipe-datalist"></datalist>
+        <button id="clear-targets-btn" title="Clear all targets">Clear</button>
+      </div>
+      <div class="global-options">
+        <button id="compute-btn" class="primary">Compute</button>
+      </div>
+    </div>
+    <!-- Results panel: summary and interactive graph -->
+    <div class="panel results-panel">
+      <div class="summary-container">
+        <h2>Summary</h2>
+        <pre id="summary"></pre>
+      </div>
+      <div class="results-container">
+        <h2>Production Chain View</h2>
+        <div id="tab-bar" class="tab-bar"></div>
+        <div id="results"></div>
+      </div>
+    </div>
+  </main>
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,656 @@
+/* Basic reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background-color: #0d1b2a;
+  color: #e0e6ed;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+}
+
+header {
+  background: linear-gradient(90deg, #142b3f, #0d1b2a);
+  color: #e0e6ed;
+  padding: 15px 20px;
+  text-align: center;
+  font-size: 1.6em;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  overflow: hidden;
+}
+
+/* Generic panel styling for controls and results */
+.panel {
+  background: #142b3f;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  border: 1px solid #1f3b5a;
+}
+
+/* Controls panel on the left */
+/* Top controls bar */
+.controls {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+  overflow: visible;
+}
+
+/* Results panel fills the remaining space */
+/* Results panel fills the remaining space below the controls */
+.results-panel {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.control-group {
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.control-group label {
+  margin-bottom: 3px;
+  font-weight: bold;
+}
+
+.radio-group, .checkbox-group {
+  display: flex;
+  gap: 10px;
+}
+
+.list-container {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+#recipe-list {
+  list-style: none;
+}
+
+#recipe-list li {
+  padding: 6px 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+#recipe-list li:hover {
+  background-color: #f0f0f0;
+}
+
+#recipe-list li.selected {
+  background-color: #cfe2f3;
+}
+
+.details-container {
+  margin-top: 10px;
+}
+
+.details-container pre {
+  white-space: pre-wrap;
+  background: #f7f7f7;
+  padding: 8px;
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.load-container {
+  margin-top: auto;
+}
+
+.load-container button {
+  width: 100%;
+  padding: 6px;
+}
+
+.params {
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.params label {
+  margin-bottom: 3px;
+  font-weight: bold;
+}
+
+#compute-btn {
+  padding: 8px;
+  background-color: #4b79a1;
+  color: #e0e6ed;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+#compute-btn:hover {
+  background-color: #3a5c79;
+}
+
+.summary-container pre, .results-container {
+  background: #142b3f;
+  padding: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  color: #e0e6ed;
+}
+
+/* Summary container styling */
+.summary-container {
+  margin-bottom: 10px;
+}
+.summary-container h2 {
+  margin-bottom: 6px;
+  color: #e0e6ed;
+}
+
+/* Results container fills available space and holds the interactive graph */
+.results-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* Add a border around the production chain view for clarity */
+  border: 1px solid #1f3b5a;
+  border-radius: 6px;
+}
+.results-container h2 {
+  margin-bottom: 6px;
+  color: #e0e6ed;
+}
+
+/* Tab bar for multiple chain views */
+.tab-bar {
+  display: flex;
+  align-items: flex-end;
+  background: #142b3f;
+  border-bottom: 1px solid #1f3b5a;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.tab {
+  padding: 6px 12px;
+  cursor: pointer;
+  background: #1f3b5a;
+  color: #e0e6ed;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  margin-right: 2px;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+.tab.active {
+  background: #283e51;
+  font-weight: bold;
+}
+.tab .tab-close {
+  margin-left: 6px;
+  color: #f0a1a8;
+  font-weight: bold;
+  cursor: pointer;
+}
+.tab .tab-close:hover {
+  color: #ffa5b4;
+}
+
+/* Style for the plus button used to create new tabs */
+.tab.new-tab {
+  background: #1f3b5a;
+  color: #a9bcd0;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  margin-right: 2px;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+.tab.new-tab:hover {
+  background: #283e51;
+  color: #e0e6ed;
+}
+
+/* The element that will contain the pan/zoom graph (created in JS) */
+#results {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+
+/*
+ * Result tree styling
+ *
+ * To make the production chain more intuitive, the results pane renders
+ * a hierarchical set of cards connected by lines.  Each card shows
+ * information about a recipe: machine counts, utilisation, output and
+ * required inputs.  The connector lines are drawn using CSS borders
+ * and pseudo‑elements.  This approach is inspired by a pure CSS tree
+ * view pattern that uses `border-left` for the vertical line and
+ * `::before` / `::after` pseudo‑elements for the horizontal connectors and
+ * node markers【143576876494415†L164-L170】.  The variables below allow easy
+ * adjustment of colours, spacing and line thickness.
+ */
+
+.tree-view {
+  --tree-color: #4b79a1;
+  --tree-font-size: 0.9rem;
+  --tree-item-height: 2; /* relative to the font size */
+  --tree-offset: 1.2rem; /* indent for each level */
+  --tree-thickness: 2px;
+  --tree-style: solid;
+  font-size: var(--tree-font-size);
+}
+.tree-view ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+.tree-view li {
+  position: relative;
+  padding-left: calc(var(--tree-offset) + 0.5rem);
+  margin-left: 0;
+  border-left: var(--tree-thickness) var(--tree-style) var(--tree-color);
+  /* allow children to align with card top */
+}
+/* Hide the vertical connector on the last child */
+.tree-view li:last-child {
+  border-left-color: transparent;
+}
+/* Horizontal connector line from parent to this node */
+.tree-view li::before {
+  content: '';
+  position: absolute;
+  top: 1rem;
+  left: calc(var(--tree-offset) * -1);
+  width: var(--tree-offset);
+  height: 0;
+  border-top: var(--tree-thickness) var(--tree-style) var(--tree-color);
+}
+/* Circular marker at the intersection */
+.tree-view li::after {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  background-color: var(--tree-color);
+  border-radius: 50%;
+  transform: translate(-50%, 0);
+}
+
+/* Card styling for each recipe node */
+.machine-card {
+  background: #283e51;
+  color: #eef4f7;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  min-width: 200px;
+}
+.machine-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-weight: bold;
+  font-size: 1rem;
+}
+.machine-card header .machine-type {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+.machine-card .stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+.machine-card .stats span {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.machine-card .section {
+  margin-top: 4px;
+}
+.machine-card .section-title {
+  font-weight: bold;
+  font-size: 0.75rem;
+  margin-bottom: 2px;
+  color: #a1b5c9;
+}
+.machine-card .section ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+.machine-card .section li {
+  font-size: 0.75rem;
+  margin-bottom: 2px;
+  display: flex;
+  justify-content: space-between;
+}
+.machine-card .overproduction {
+  color: #f3a3a3;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/*
+ * Graph layout styles
+ *
+ * When rendering the production chain as a horizontal graph, each node is
+ * positioned absolutely inside a scrollable container.  The container uses
+ * a dark backdrop and the nodes are coloured according to their type
+ * (raw resource, intermediate machine, or final product).  Edges are drawn
+ * on an SVG overlay with arrow heads and labelled with the per‑minute
+ * consumption of the child recipe.  These classes do not interfere with
+ * the list/tree view used in other modes.
+ */
+.graph-container {
+  position: relative;
+  background-color: #1b2c38;
+  overflow: auto;
+  border-radius: 4px;
+  padding: 20px;
+  min-height: 300px;
+  white-space: nowrap;
+}
+
+.graph-node {
+  position: absolute;
+  width: 200px;
+  padding: 10px;
+  border-radius: 6px;
+  color: #e0e6ed;
+  font-size: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  line-height: 1.2;
+  overflow: hidden;
+}
+/* Colour coding for node types on dark background */
+.graph-node.raw {
+  background-color: #556a7b;
+}
+.graph-node.machine {
+  background-color: #b9822b;
+}
+.graph-node.final {
+  background-color: #2f8f3c;
+}
+.graph-node.excess {
+  background-color: #3c7f4f;
+}
+
+/* edge label styling for text drawn inside the SVG */
+.graph-edge-label {
+  fill: #ccd7e1;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+}
+
+.export-container {
+  margin-top: 10px;
+}
+
+.export-container button {
+  padding: 6px 10px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #4b79a1;
+  color: white;
+}
+
+.export-container button:hover {
+  background-color: #3e5e79;
+}
+
+/* New styles for target selection and dark theme */
+.target-selection {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+}
+.target-selection label {
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+/* Container for selected targets (tags) */
+.selected-targets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+/* Individual selected target tag */
+.selected-target {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #1f3b5a;
+  border-radius: 4px;
+  padding: 4px 6px;
+  color: #e0e6ed;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.selected-target input {
+  width: 60px;
+  background: transparent;
+  border: 1px solid #334e6e;
+  border-radius: 4px;
+  color: #e0e6ed;
+  padding: 2px 4px;
+  font-size: 0.85rem;
+}
+.selected-target .remove {
+  cursor: pointer;
+  color: #f0a1a8;
+  font-size: 1rem;
+  line-height: 1;
+  margin-left: 2px;
+}
+
+/* Suffix for rate inputs (e.g., "/min") */
+.selected-target .rate-suffix {
+  margin-left: 2px;
+  margin-right: 4px;
+  font-size: 0.75rem;
+  color: #8ea5bc;
+}
+
+/* Input for typing recipe names */
+#target-input {
+  background: #1f3b5a;
+  color: #e0e6ed;
+  border: 1px solid #334e6e;
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin-top: 4px;
+  width: 100%;
+}
+#target-input::placeholder {
+  color: #8ea5bc;
+}
+
+/* Clear targets button */
+#clear-targets-btn {
+  margin-top: 6px;
+  align-self: flex-start;
+  padding: 6px 10px;
+  background: #6c757d;
+  color: #e0e6ed;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease;
+}
+#clear-targets-btn:hover {
+  background: #5a636b;
+}
+
+/* Global options container */
+.global-options {
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.global-options .checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.global-options .checkbox-group label {
+  font-size: 0.85rem;
+  color: #e0e6ed;
+}
+
+/* Override input checkbox color */
+input[type="checkbox"] {
+  accent-color: #4b79a1;
+}
+/* External supply panel */
+.supply-section{
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.supply-header{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap:10px;
+}
+.supply-autoscale{
+  font-size:12px;
+  opacity:0.85;
+  user-select:none;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.supply-list{
+  margin-top:8px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  max-height:120px;
+  overflow:auto;
+  padding-right:4px;
+}
+.supply-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background: rgba(0,0,0,0.18);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  padding:6px 8px;
+}
+.supply-row .name{
+  flex:1;
+  font-size:12px;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.supply-row input[type="number"]{
+  width:110px;
+  background: rgba(0,0,0,0.25);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:6px;
+  padding:4px 6px;
+  color:#e6edf3;
+}
+.supply-row button{
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  color:#e6edf3;
+  border-radius:6px;
+  padding:4px 8px;
+  cursor:pointer;
+}
+.supply-row button:hover{ border-color: rgba(255,255,255,0.25); }
+
+/* Byproducts panel */
+.byproducts-panel{
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.byproducts-title{
+  font-size:12px;
+  font-weight:700;
+  opacity:0.9;
+  margin-bottom:6px;
+}
+.byproducts-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  max-height:160px;
+  overflow:auto;
+  padding-right:4px;
+}
+.by-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background: rgba(0,0,0,0.18);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  padding:6px 8px;
+}
+.by-row .name{ flex:1; font-size:12px; font-weight:600; }
+.by-row .val{ font-size:12px; opacity:0.9; white-space:nowrap; }
+.by-row button{
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  color:#e6edf3;
+  border-radius:6px;
+  padding:4px 8px;
+  cursor:pointer;
+}
+.by-row button:hover{ border-color: rgba(255,255,255,0.25); }
