@@ -550,6 +550,54 @@ main {
 input[type="checkbox"] {
   accent-color: #4b79a1;
 }
+
+/* Custom Autocomplete Dropdown */
+.autocomplete-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.autocomplete-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #1f3b5a;
+  border: 1px solid #334e6e;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.autocomplete-suggestions.show {
+  display: block;
+}
+
+.autocomplete-suggestion {
+  padding: 10px 12px;
+  color: #e0e6ed;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background-color 0.15s ease;
+}
+
+.autocomplete-suggestion:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-suggestion:hover,
+.autocomplete-suggestion.selected {
+  background: #283e51;
+}
+
+.autocomplete-suggestion:active {
+  background: #334e6e;
+}
+
 /* External supply panel */
 .supply-section{
   margin-top: 10px;
@@ -738,6 +786,19 @@ input[type="checkbox"] {
   #target-input {
     padding: 10px 12px;
     font-size: 1rem;
+  }
+
+  /* Autocomplete suggestions mobile styling */
+  .autocomplete-suggestions {
+    max-height: 250px;
+    font-size: 1rem;
+  }
+
+  .autocomplete-suggestion {
+    padding: 12px 14px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
   }
 
   /* Increase button sizes for touch targets (minimum 44px height) */

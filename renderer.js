@@ -613,11 +613,12 @@ const GRAPH_V_SPACING = 60;
 const GRAPH_CANVAS_PADDING = 100;
 
 // Grab references to DOM elements used in the dark themed interface
-const recipeDatalist = document.getElementById('recipe-datalist');
 const targetInput = document.getElementById('target-input');
+const targetSuggestions = document.getElementById('target-suggestions');
 const selectedTargetsEl = document.getElementById('selected-targets');
 const supplyListEl = document.getElementById('supply-list');
 const supplyInputEl = document.getElementById('supply-input');
+const supplySuggestions = document.getElementById('supply-suggestions');
 const supplyRateEl = document.getElementById('supply-rate');
 const addSupplyBtnEl = document.getElementById('add-supply-btn');
 const supplyAutoscaleEl = document.getElementById('supply-autoscale');
@@ -904,34 +905,113 @@ function buildCombinedLayout(results) {
 }
 
 /**
- * Populate the datalist with recipe names from the recipeBook.  Called
- * once on startup and whenever recipes are reloaded.
+ * Custom autocomplete implementation to replace datalist for better mobile support.
+ * Creates a dropdown list of filtered suggestions below the input field.
  */
-function updateRecipeDatalist() {
-  // Clear existing options
-  recipeDatalist.innerHTML = '';
-  Object.keys(recipeBook)
-    .sort()
-    .forEach(name => {
-      const opt = document.createElement('option');
-      opt.value = name;
-      recipeDatalist.appendChild(opt);
+function setupAutocomplete(inputEl, suggestionsEl, getOptions, onSelect) {
+  let currentFocus = -1;
+  
+  // Show suggestions based on input
+  function showSuggestions() {
+    const val = inputEl.value.trim().toLowerCase();
+    suggestionsEl.innerHTML = '';
+    
+    if (!val) {
+      suggestionsEl.classList.remove('show');
+      return;
+    }
+    
+    const options = getOptions();
+    const filtered = options.filter(opt => opt.toLowerCase().includes(val));
+    
+    if (filtered.length === 0) {
+      suggestionsEl.classList.remove('show');
+      return;
+    }
+    
+    // Limit to first 10 suggestions for performance
+    filtered.slice(0, 10).forEach((option, index) => {
+      const div = document.createElement('div');
+      div.className = 'autocomplete-suggestion';
+      div.textContent = option;
+      div.addEventListener('click', () => {
+        onSelect(option);
+        inputEl.value = '';
+        suggestionsEl.classList.remove('show');
+      });
+      suggestionsEl.appendChild(div);
     });
+    
+    suggestionsEl.classList.add('show');
+    currentFocus = -1;
+  }
+  
+  // Handle keyboard navigation
+  function addActive(items) {
+    if (!items || items.length === 0) return false;
+    removeActive(items);
+    if (currentFocus >= items.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = items.length - 1;
+    items[currentFocus].classList.add('selected');
+  }
+  
+  function removeActive(items) {
+    Array.from(items).forEach(item => item.classList.remove('selected'));
+  }
+  
+  // Input event listener
+  inputEl.addEventListener('input', showSuggestions);
+  
+  // Keyboard navigation
+  inputEl.addEventListener('keydown', (e) => {
+    const items = suggestionsEl.getElementsByClassName('autocomplete-suggestion');
+    
+    if (e.key === 'ArrowDown') {
+      currentFocus++;
+      addActive(items);
+      e.preventDefault();
+    } else if (e.key === 'ArrowUp') {
+      currentFocus--;
+      addActive(items);
+      e.preventDefault();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (currentFocus > -1 && items[currentFocus]) {
+        items[currentFocus].click();
+      } else {
+        // Try to add the typed value
+        onSelect(inputEl.value.trim());
+        inputEl.value = '';
+        suggestionsEl.classList.remove('show');
+      }
+    } else if (e.key === 'Escape') {
+      suggestionsEl.classList.remove('show');
+    }
+  });
+  
+  // Close suggestions when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!inputEl.contains(e.target) && !suggestionsEl.contains(e.target)) {
+      suggestionsEl.classList.remove('show');
+    }
+  });
 }
 
-function updateResourceDatalist() {
+/**
+ * Get all recipe names sorted alphabetically
+ */
+function getRecipeOptions() {
+  return Object.keys(recipeBook).sort();
+}
+
+/**
+ * Get all resource names (recipes + inputs) sorted alphabetically
+ */
+function getResourceOptions() {
   const set = new Set();
   Object.keys(recipeBook).forEach(k => set.add(k));
   Object.values(recipeBook).forEach(r => (r.inputs || []).forEach(i => set.add(i.resource)));
-  const list = Array.from(set).sort((a,b)=>a.localeCompare(b));
-  const datalist = document.getElementById('resource-datalist');
-  if (!datalist) return;
-  datalist.innerHTML = '';
-  list.forEach(name => {
-    const opt = document.createElement('option');
-    opt.value = name;
-    datalist.appendChild(opt);
-  });
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
 }
 
 
@@ -2148,25 +2228,35 @@ function loadState() {
 }
 
 // Event wiring for the auto-complete and compute buttons
-updateRecipeDatalist();
-updateResourceDatalist();
+// Initialize custom autocomplete for recipes
+setupAutocomplete(
+  targetInput,
+  targetSuggestions,
+  getRecipeOptions,
+  addTargetByName
+);
+
+// Initialize custom autocomplete for resources
+setupAutocomplete(
+  supplyInputEl,
+  supplySuggestions,
+  getResourceOptions,
+  (name) => {
+    if (supplyInputEl) supplyInputEl.value = name;
+    // Focus on the rate input after selection
+    if (supplyRateEl) supplyRateEl.focus();
+  }
+);
+
 // Load saved state or create default tab
 loadState();
-// Add selected target on Enter key in the input or when an option is chosen
-targetInput.addEventListener('change', () => {
-  addTargetByName(targetInput.value.trim());
-  targetInput.value = '';
-});
-targetInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    addTargetByName(targetInput.value.trim());
-    targetInput.value = '';
-    e.preventDefault();
-  }
-});
+
+// Clear targets button
 clearTargetsBtn.addEventListener('click', () => {
   clearTargets();
 });
+
+// Compute button
 computeBtn.addEventListener('click', () => {
   compute();
 });
