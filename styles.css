@@ -693,7 +693,7 @@ input[type="checkbox"] {
    MOBILE RESPONSIVENESS
    =================================== */
 
-/* Tablet and below (max-width: 768px) */
+/* Tablets in portrait and mobile devices (max-width: 768px) */
 @media (max-width: 768px) {
   /* Adjust body font size for better readability */
   body {
@@ -998,5 +998,14 @@ input[type="checkbox"] {
   .tree-view {
     --tree-font-size: 0.9rem;
     --tree-offset: 0.8rem;
+  }
+
+  /* Export buttons - ensure consistency on very small screens */
+  .export-container button {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    min-height: 44px;
+    margin-bottom: 8px;
+    width: 100%;
   }
 }
