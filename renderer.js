@@ -90,6 +90,91 @@ Manufacturer	Thermal Propulsion Rocket	20	1	3	Modular Engine	2	Turbo Motor	1	Fue
 Manufacturer	Nuclear Fuel Rod	15	1	4	Uranium Cell	4	Steel Beam	4	Hardening Agent	2
 `;
 
+// Building costs and power consumption data
+// Each building type has: buildCost (resources needed to construct), powerConsumption (MW)
+const buildingData = {
+  'Ore Extractor': {
+    buildCost: {
+      'Basic Building Material': 20,
+      'Titanium Rod': 10,
+      'Rotor': 2
+    },
+    powerConsumption: 5
+  },
+  'Helium Extractor': {
+    buildCost: {
+      'Basic Building Material': 25,
+      'Titanium Sheet': 15,
+      'Rotor': 3
+    },
+    powerConsumption: 6
+  },
+  'Water Extractor': {
+    buildCost: {
+      'Basic Building Material': 15,
+      'Titanium Rod': 8,
+      'Rotor': 2
+    },
+    powerConsumption: 4
+  },
+  'Smelter': {
+    buildCost: {
+      'Basic Building Material': 30,
+      'Titanium Beam': 10,
+      'Wolfram Wire': 15
+    },
+    powerConsumption: 8
+  },
+  'Fabricator': {
+    buildCost: {
+      'Basic Building Material': 35,
+      'Titanium Housing': 8,
+      'Rotor': 4,
+      'Wolfram Plate': 10
+    },
+    powerConsumption: 10
+  },
+  'Furnace': {
+    buildCost: {
+      'Basic Building Material': 40,
+      'Titanium Housing': 10,
+      'Heat Resistant Sheet': 5,
+      'Ceramics': 15
+    },
+    powerConsumption: 12
+  },
+  'Refinery': {
+    buildCost: {
+      'Basic Building Material': 50,
+      'Steel Beam': 15,
+      'Titanium Housing': 12,
+      'Glass': 20,
+      'Inductor': 8
+    },
+    powerConsumption: 15
+  },
+  'Assembler': {
+    buildCost: {
+      'Basic Building Material': 60,
+      'Steel Frame': 10,
+      'Motor': 5,
+      'Electronics': 8,
+      'Inductor': 10
+    },
+    powerConsumption: 18
+  },
+  'Manufacturer': {
+    buildCost: {
+      'Basic Building Material': 80,
+      'Modular Frame': 15,
+      'Motor': 8,
+      'Advanced Circuit': 10,
+      'Computer': 5
+    },
+    powerConsumption: 25
+  }
+};
+
 // Parse TSV data into recipe objects
 function parseRecipes(tsv) {
   const lines = tsv.trim().split(/\r?\n/);
@@ -279,6 +364,36 @@ function summariseMachines(node, totals = {}) {
     }
   }
   return totals;
+}
+
+/**
+ * Calculate total building costs and power consumption based on machine counts.
+ * Returns an object with totalBuildCost (resource totals) and totalPower (MW).
+ */
+function calculateBuildingCosts(machineTotals) {
+  const totalBuildCost = {};
+  let totalPower = 0;
+  
+  Object.keys(machineTotals).forEach(machineName => {
+    const count = machineTotals[machineName];
+    const buildingInfo = buildingData[machineName];
+    
+    if (!buildingInfo) {
+      console.warn(`No building data for: ${machineName}`);
+      return;
+    }
+    
+    // Add building costs
+    Object.keys(buildingInfo.buildCost).forEach(resource => {
+      const amount = buildingInfo.buildCost[resource] * count;
+      totalBuildCost[resource] = (totalBuildCost[resource] || 0) + amount;
+    });
+    
+    // Add power consumption
+    totalPower += buildingInfo.powerConsumption * count;
+  });
+  
+  return { totalBuildCost, totalPower };
 }
 
 /**
@@ -1339,10 +1454,25 @@ function compute() {
   Object.keys(totals).sort().forEach(machine => {
     totalsLines.push(`${machine}: ${totals[machine]}`);
   });
+  
+  // Calculate building costs and power consumption
+  const { totalBuildCost, totalPower } = calculateBuildingCosts(totals);
+  const buildCostLines = [];
+  if (Object.keys(totalBuildCost).length > 0) {
+    buildCostLines.push('\nTotal building costs:');
+    Object.keys(totalBuildCost).sort().forEach(resource => {
+      buildCostLines.push(`  ${resource}: ${totalBuildCost[resource]}`);
+    });
+  }
+  const powerLine = totalPower > 0 ? `\nTotal power consumption: ${totalPower.toFixed(1)} MW` : '';
+  
   // Build merged layout across all selected targets
   const layout = mergeResults(results, tab.selectedTargets.map(t => t.name));
   // Compose summary string for this computation
-  const summaryString = summaryLines.join('\n') + (totalsLines.length > 0 ? '\n\nTotal machines:\n' + totalsLines.join('\n') : '');
+  const summaryString = summaryLines.join('\n') 
+    + (totalsLines.length > 0 ? '\n\nTotal machines:\n' + totalsLines.join('\n') : '')
+    + buildCostLines.join('\n')
+    + powerLine;
   // Update tab's summary and layout
   tab.summary = summaryString;
   tab.layout = layout;
@@ -2182,9 +2312,24 @@ function loadState() {
         Object.keys(totals).sort().forEach(machine => {
           totalsLines.push(`${machine}: ${totals[machine]}`);
         });
+        
+        // Calculate building costs and power consumption
+        const { totalBuildCost, totalPower } = calculateBuildingCosts(totals);
+        const buildCostLines = [];
+        if (Object.keys(totalBuildCost).length > 0) {
+          buildCostLines.push('\nTotal building costs:');
+          Object.keys(totalBuildCost).sort().forEach(resource => {
+            buildCostLines.push(`  ${resource}: ${totalBuildCost[resource]}`);
+          });
+        }
+        const powerLine = totalPower > 0 ? `\nTotal power consumption: ${totalPower.toFixed(1)} MW` : '';
+        
         const layout = mergeResults(results, tab.selectedTargets.map(t => t.name));
         tab.layout = layout;
-        tab.summary = summaryLines.join('\n') + (totalsLines.length > 0 ? '\n\nTotal machines:\n' + totalsLines.join('\n') : '');
+        tab.summary = summaryLines.join('\n') 
+          + (totalsLines.length > 0 ? '\n\nTotal machines:\n' + totalsLines.join('\n') : '')
+          + buildCostLines.join('\n')
+          + powerLine;
         renderGraphInContainer(layout, tab.element);
       }
     });
