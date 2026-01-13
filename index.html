@@ -16,8 +16,10 @@
       <div class="target-selection">
         <label for="target-input">Target Recipes</label>
         <div id="selected-targets" class="selected-targets"></div>
-        <input type="text" id="target-input" placeholder="Type recipe name..." autocomplete="off" list="recipe-datalist" />
-        <datalist id="recipe-datalist"></datalist>
+        <div class="autocomplete-wrapper">
+          <input type="text" id="target-input" placeholder="Type recipe name..." autocomplete="off" />
+          <div id="target-suggestions" class="autocomplete-suggestions"></div>
+        </div>
         <button id="clear-targets-btn" title="Clear all targets">Clear</button>
         
         <!-- External Supply Section -->
@@ -31,8 +33,10 @@
           </div>
           <div id="supply-list" class="supply-list"></div>
           <div class="supply-inputs">
-            <input type="text" id="supply-input" placeholder="Resource name..." autocomplete="off" list="resource-datalist" />
-            <datalist id="resource-datalist"></datalist>
+            <div class="autocomplete-wrapper">
+              <input type="text" id="supply-input" placeholder="Resource name..." autocomplete="off" />
+              <div id="supply-suggestions" class="autocomplete-suggestions"></div>
+            </div>
             <input type="number" id="supply-rate" placeholder="Rate/min" min="0" step="0.01" />
             <button id="add-supply-btn">Add</button>
           </div>
