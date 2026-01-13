@@ -154,7 +154,16 @@ main {
   background-color: #3a5c79;
 }
 
-.summary-container pre, .results-container {
+.summary-container pre {
+  background: #142b3f;
+  padding: 8px;
+  border-radius: 4px;
+  overflow: auto;
+  color: #e0e6ed;
+  max-height: 300px;
+}
+
+.results-container {
   background: #142b3f;
   padding: 8px;
   border-radius: 4px;
@@ -898,6 +907,18 @@ input[type="checkbox"] {
 
   .summary-container pre {
     font-size: 0.85rem;
+  }
+
+  /* Make results scrollable on mobile */
+  #results {
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Allow graph content to be scrollable on mobile */
+  #results > div {
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Tab bar improvements */
