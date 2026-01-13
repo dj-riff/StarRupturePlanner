@@ -397,6 +397,32 @@ function calculateBuildingCosts(machineTotals) {
 }
 
 /**
+ * Format a summary string with machine counts, building costs, and power consumption.
+ */
+function formatSummaryString(summaryLines, totals) {
+  const totalsLines = [];
+  Object.keys(totals).sort().forEach(machine => {
+    totalsLines.push(`${machine}: ${totals[machine]}`);
+  });
+  
+  // Calculate building costs and power consumption
+  const { totalBuildCost, totalPower } = calculateBuildingCosts(totals);
+  const buildCostLines = [];
+  if (Object.keys(totalBuildCost).length > 0) {
+    buildCostLines.push('\nTotal building costs:');
+    Object.keys(totalBuildCost).sort().forEach(resource => {
+      buildCostLines.push(`  ${resource}: ${totalBuildCost[resource]}`);
+    });
+  }
+  const powerLine = totalPower > 0 ? `\nTotal power consumption: ${totalPower.toFixed(1)} MW` : '';
+  
+  return summaryLines.join('\n') 
+    + (totalsLines.length > 0 ? '\n\nTotal machines:\n' + totalsLines.join('\n') : '')
+    + buildCostLines.join('\n')
+    + powerLine;
+}
+
+/**
  * Compute the maximum depth of a production chain tree.  Depth is
  * measured in terms of non‑excess nodes; excess nodes are not
  * considered when determining depth because they are positioned
@@ -1450,29 +1476,11 @@ function compute() {
   results.forEach(res => {
     summariseMachines(res.root, totals);
   });
-  const totalsLines = [];
-  Object.keys(totals).sort().forEach(machine => {
-    totalsLines.push(`${machine}: ${totals[machine]}`);
-  });
-  
-  // Calculate building costs and power consumption
-  const { totalBuildCost, totalPower } = calculateBuildingCosts(totals);
-  const buildCostLines = [];
-  if (Object.keys(totalBuildCost).length > 0) {
-    buildCostLines.push('\nTotal building costs:');
-    Object.keys(totalBuildCost).sort().forEach(resource => {
-      buildCostLines.push(`  ${resource}: ${totalBuildCost[resource]}`);
-    });
-  }
-  const powerLine = totalPower > 0 ? `\nTotal power consumption: ${totalPower.toFixed(1)} MW` : '';
   
   // Build merged layout across all selected targets
   const layout = mergeResults(results, tab.selectedTargets.map(t => t.name));
   // Compose summary string for this computation
-  const summaryString = summaryLines.join('\n') 
-    + (totalsLines.length > 0 ? '\n\nTotal machines:\n' + totalsLines.join('\n') : '')
-    + buildCostLines.join('\n')
-    + powerLine;
+  const summaryString = formatSummaryString(summaryLines, totals);
   // Update tab's summary and layout
   tab.summary = summaryString;
   tab.layout = layout;
@@ -2308,28 +2316,10 @@ function loadState() {
         });
         const totals = {};
         results.forEach(r => summariseMachines(r.root, totals));
-        const totalsLines = [];
-        Object.keys(totals).sort().forEach(machine => {
-          totalsLines.push(`${machine}: ${totals[machine]}`);
-        });
-        
-        // Calculate building costs and power consumption
-        const { totalBuildCost, totalPower } = calculateBuildingCosts(totals);
-        const buildCostLines = [];
-        if (Object.keys(totalBuildCost).length > 0) {
-          buildCostLines.push('\nTotal building costs:');
-          Object.keys(totalBuildCost).sort().forEach(resource => {
-            buildCostLines.push(`  ${resource}: ${totalBuildCost[resource]}`);
-          });
-        }
-        const powerLine = totalPower > 0 ? `\nTotal power consumption: ${totalPower.toFixed(1)} MW` : '';
         
         const layout = mergeResults(results, tab.selectedTargets.map(t => t.name));
         tab.layout = layout;
-        tab.summary = summaryLines.join('\n') 
-          + (totalsLines.length > 0 ? '\n\nTotal machines:\n' + totalsLines.join('\n') : '')
-          + buildCostLines.join('\n')
-          + powerLine;
+        tab.summary = formatSummaryString(summaryLines, totals);
         renderGraphInContainer(layout, tab.element);
       }
     });
