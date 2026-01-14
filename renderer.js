@@ -3,12 +3,31 @@
 // Embedded recipe data (tab‑separated).  See README for format.
 const recipeData = `Machine	Recipe	Processing Time	Out	Per Minute	Resource 1	Amount	Resource 2	Amount	Resource 3	Amount
 Ore Extractor	Wolfram Ore (Impure)	2	2	60	N/A				
+Ore Extractor	Wolfram Ore (Normal)	2	4	120	N/A				
+Ore Extractor	Wolfram Ore (Pure)	2	6	180	N/A				
 Ore Extractor	Titanium Ore (Impure)	2	2	60	N/A				
 Ore Extractor	Titanium Ore (Normal)	2	4	120	N/A				
+Ore Extractor	Titanium Ore (Pure)	2	6	180	N/A				
+Ore Extractor	Calcium Ore (Impure)	2	2	60	N/A				
+Ore Extractor	Calcium Ore (Normal)	2	4	120	N/A				
+Ore Extractor	Calcium Ore (Pure)	2	6	180	N/A				
+Ore Extractor	Iron Ore (Impure)	2	2	60	N/A				
+Ore Extractor	Iron Ore (Normal)	2	4	120	N/A				
+Ore Extractor	Iron Ore (Pure)	2	6	180	N/A				
+Ore Extractor	Copper Ore (Impure)	2	2	60	N/A				
+Ore Extractor	Copper Ore (Normal)	2	4	120	N/A				
+Ore Extractor	Copper Ore (Pure)	2	6	180	N/A				
+Ore Extractor	Sulfur Ore (Impure)	2	2	60	N/A				
+Ore Extractor	Sulfur Ore (Normal)	2	4	120	N/A				
+Ore Extractor	Sulfur Ore (Pure)	2	6	180	N/A				
 Helium Extractor	Helium-3	2	8	240	N/A				
-Smelter	Titanium Bar	2	2	60	Titanium Ore				
-Smelter	Wolfram Bar	2	2	60	Wolfram Ore				
-Smelter	Calcium Block	2	2	60	Calcium Ore				
+Water Extractor	Water	2	10	300	N/A				
+Smelter	Titanium Bar	2	2	60	Titanium Ore	1			
+Smelter	Wolfram Bar	2	2	60	Wolfram Ore	1			
+Smelter	Calcium Block	2	2	60	Calcium Ore	1			
+Smelter	Iron Bar	2	2	60	Iron Ore	1			
+Smelter	Copper Bar	2	2	60	Copper Ore	1			
+Smelter	Steel Bar	3	2	40	Iron Bar	2	Calcium Block	1	
 Fabricator	Basic Building Material	2	10	300	Titanium Ore	1	Wolfram Ore	1		
 Fabricator	Pistol Ammo	2	10	300	Basic Building Material	14			
 Fabricator	Titanium Rod	2	1	30	Titanium Bar	1			
@@ -16,12 +35,25 @@ Fabricator	Titanium Sheet	2	2	60	Titanium Bar	1
 Fabricator	Titanium Beam	3	1	20	Titanium Bar	1			
 Fabricator	Wolfram Wire	4	2	30	Wolfram Bar	1			
 Fabricator	Wolfram Plate	1	1	60	Wolfram Bar	1			
+Fabricator	Iron Rod	2	1	30	Iron Bar	1			
+Fabricator	Iron Sheet	2	2	60	Iron Bar	1			
+Fabricator	Copper Wire	2	3	90	Copper Bar	1			
+Fabricator	Copper Sheet	2	2	60	Copper Bar	1			
+Fabricator	Steel Rod	2	1	30	Steel Bar	1			
+Fabricator	Steel Beam	3	1	20	Steel Bar	1			
+Fabricator	Steel Sheet	2	2	60	Steel Bar	1			
 Fabricator	Rotor	6	1	10	Titanium Rod	2	Wolfram Wire	2		
 Fabricator	Tube	2	2	60	Titanium Rod	1	Titanium Sheet	1		
 Fabricator	Calcite Sheets	2	2	60	Calcium Block	1			
 Fabricator	Stabilizer	6	1	10	Rotor	1	Titanium Rod	2		
 Fabricator	Stator	3	1	20	Titanium Housing	2	Wolfram Wire	1		
 Fabricator	Applicator	4	1	15	Tube	8	Glass	2		
+Fabricator	Motor	8	1	7.5	Rotor	1	Stator	1	Copper Wire	4
+Fabricator	Frame	4	1	15	Steel Beam	2	Steel Sheet	2		
+Fabricator	Modular Frame	6	1	10	Frame	2	Steel Rod	4	Steel Sheet	2
+Fabricator	Gear	4	1	15	Iron Rod	2			
+Fabricator	Screw	2	4	120	Iron Rod	1			
+Fabricator	Reinforced Frame	8	1	7.5	Modular Frame	1	Steel Beam	4	Screw	20
 Furnace	Wolfram Powder	2	3	90	Wolfram Bar	1			
 Furnace	Calcium Powder	3	3	60	Calcium Block	1			
 Furnace	Titanium Housing	2	1	30	Titanium Beam	1	Titanium Sheet	2		
@@ -29,12 +61,119 @@ Furnace	Ceramics	2	2	60	Calcite Sheets	1	Wolfram Powder	1
 Furnace	Glass	3	1	20	Helium-3	1	Calcium Powder	2		
 Furnace	Inductor	3	1	20	Tube	2	Wolfram Wire	1	Ceramics	2
 Furnace	Heat Resistant Sheet	4	1	15	Wolfram Plate	1	Titanium Sheet	2	Glass	1
-Furnace	Synthetic Silicon	2	2	60	Calcium Powder	2	Helium-3	1	Cermaics	2
+Furnace	Synthetic Silicon	2	2	60	Calcium Powder	2	Helium-3	1	Ceramics	2
 Furnace	Electronics	5	1	12	Synthetic Silicon	2	Inductor	1	Stator	1
 Furnace	Chemicals	2	2	60	Synthetic Silicon	1	Wolfram Powder	3	Helium-3	1
+Furnace	Sulfuric Acid	3	2	40	Sulfur Ore	2	Water	1	
 Furnace	Hardening Agent	4	2	30	Sulfuric Acid	2	Synthetic Silicon	1	Applicator	1
 Furnace	Super Magnet	3	1	20	Sulfuric Acid	5	Wolfram Plate	5	Chemicals	2
+Furnace	Advanced Circuit	6	1	10	Electronics	2	Copper Wire	4	Synthetic Silicon	1
+Furnace	Computer	8	1	7.5	Advanced Circuit	2	Electronics	4	Chemicals	1
+Refinery	Plastic	3	2	40	Chemicals	2	Helium-3	1	
+Refinery	Rubber	4	2	30	Chemicals	2	Water	2	
+Refinery	Battery	5	1	12	Sulfuric Acid	3	Iron Sheet	2	Copper Wire	2
+Refinery	Crystal Oscillator	6	1	10	Synthetic Silicon	4	Glass	3	Copper Wire	6
+Refinery	Fuel	4	4	60	Chemicals	3	Water	1	
+Assembler	Radio Control Unit	8	1	7.5	Advanced Circuit	2	Crystal Oscillator	1	Computer	1
+Assembler	Turbo Motor	12	1	5	Motor	2	Super Magnet	2	Reinforced Frame	1
+Assembler	Modular Engine	10	1	6	Motor	2	Rubber	2	Frame	2
+Assembler	Heavy Modular Frame	10	1	6	Modular Frame	2	Steel Beam	6	Screw	30
+Assembler	Automated Wiring	6	1	10	Stator	1	Copper Wire	10	
+Assembler	Uranium Cell	12	1	5	Uranium Ore	5	Plastic	2	Sulfuric Acid	3
+Ore Extractor	Uranium Ore (Impure)	2	2	60	N/A				
+Ore Extractor	Uranium Ore (Normal)	2	4	120	N/A				
+Ore Extractor	Uranium Ore (Pure)	2	6	180	N/A				
+Manufacturer	Supercomputer	16	1	3.75	Computer	2	Radio Control Unit	2	Advanced Circuit	4
+Manufacturer	Adaptive Control Unit	20	1	3	Automated Wiring	2	Computer	2	Heavy Modular Frame	1
+Manufacturer	Magnetic Field Generator	24	1	2.5	Super Magnet	4	Modular Frame	2	Computer	2
+Manufacturer	Thermal Propulsion Rocket	20	1	3	Modular Engine	2	Turbo Motor	1	Fuel	10
+Manufacturer	Nuclear Fuel Rod	15	1	4	Uranium Cell	4	Steel Beam	4	Hardening Agent	2
 `;
+
+// Building costs and power consumption data
+// Each building type has: buildCost (resources needed to construct), powerConsumption (MW)
+const buildingData = {
+  'Ore Extractor': {
+    buildCost: {
+      'Basic Building Material': 20,
+      'Titanium Rod': 10,
+      'Rotor': 2
+    },
+    powerConsumption: 5
+  },
+  'Helium Extractor': {
+    buildCost: {
+      'Basic Building Material': 25,
+      'Titanium Sheet': 15,
+      'Rotor': 3
+    },
+    powerConsumption: 6
+  },
+  'Water Extractor': {
+    buildCost: {
+      'Basic Building Material': 15,
+      'Titanium Rod': 8,
+      'Rotor': 2
+    },
+    powerConsumption: 4
+  },
+  'Smelter': {
+    buildCost: {
+      'Basic Building Material': 30,
+      'Titanium Beam': 10,
+      'Wolfram Wire': 15
+    },
+    powerConsumption: 8
+  },
+  'Fabricator': {
+    buildCost: {
+      'Basic Building Material': 35,
+      'Titanium Housing': 8,
+      'Rotor': 4,
+      'Wolfram Plate': 10
+    },
+    powerConsumption: 10
+  },
+  'Furnace': {
+    buildCost: {
+      'Basic Building Material': 40,
+      'Titanium Housing': 10,
+      'Heat Resistant Sheet': 5,
+      'Ceramics': 15
+    },
+    powerConsumption: 12
+  },
+  'Refinery': {
+    buildCost: {
+      'Basic Building Material': 50,
+      'Steel Beam': 15,
+      'Titanium Housing': 12,
+      'Glass': 20,
+      'Inductor': 8
+    },
+    powerConsumption: 15
+  },
+  'Assembler': {
+    buildCost: {
+      'Basic Building Material': 60,
+      'Steel Frame': 10,
+      'Motor': 5,
+      'Electronics': 8,
+      'Inductor': 10
+    },
+    powerConsumption: 18
+  },
+  'Manufacturer': {
+    buildCost: {
+      'Basic Building Material': 80,
+      'Modular Frame': 15,
+      'Motor': 8,
+      'Advanced Circuit': 10,
+      'Computer': 5
+    },
+    powerConsumption: 25
+  }
+};
 
 // Parse TSV data into recipe objects
 function parseRecipes(tsv) {
@@ -225,6 +364,62 @@ function summariseMachines(node, totals = {}) {
     }
   }
   return totals;
+}
+
+/**
+ * Calculate total building costs and power consumption based on machine counts.
+ * Returns an object with totalBuildCost (resource totals) and totalPower (MW).
+ */
+function calculateBuildingCosts(machineTotals) {
+  const totalBuildCost = {};
+  let totalPower = 0;
+  
+  Object.keys(machineTotals).forEach(machineName => {
+    const count = machineTotals[machineName];
+    const buildingInfo = buildingData[machineName];
+    
+    if (!buildingInfo) {
+      console.warn(`No building data for: ${machineName}`);
+      return;
+    }
+    
+    // Add building costs
+    Object.keys(buildingInfo.buildCost).forEach(resource => {
+      const amount = buildingInfo.buildCost[resource] * count;
+      totalBuildCost[resource] = (totalBuildCost[resource] || 0) + amount;
+    });
+    
+    // Add power consumption
+    totalPower += buildingInfo.powerConsumption * count;
+  });
+  
+  return { totalBuildCost, totalPower };
+}
+
+/**
+ * Format a summary string with machine counts, building costs, and power consumption.
+ */
+function formatSummaryString(summaryLines, totals) {
+  const totalsLines = [];
+  Object.keys(totals).sort().forEach(machine => {
+    totalsLines.push(`${machine}: ${totals[machine]}`);
+  });
+  
+  // Calculate building costs and power consumption
+  const { totalBuildCost, totalPower } = calculateBuildingCosts(totals);
+  const buildCostLines = [];
+  if (Object.keys(totalBuildCost).length > 0) {
+    buildCostLines.push('\nTotal building costs:');
+    Object.keys(totalBuildCost).sort().forEach(resource => {
+      buildCostLines.push(`  ${resource}: ${totalBuildCost[resource]}`);
+    });
+  }
+  const powerLine = totalPower > 0 ? `\nTotal power consumption: ${totalPower.toFixed(1)} MW` : '';
+  
+  return summaryLines.join('\n') 
+    + (totalsLines.length > 0 ? '\n\nTotal machines:\n' + totalsLines.join('\n') : '')
+    + buildCostLines.join('\n')
+    + powerLine;
 }
 
 /**
@@ -1361,14 +1556,11 @@ function compute() {
   results.forEach(res => {
     summariseMachines(res.root, totals);
   });
-  const totalsLines = [];
-  Object.keys(totals).sort().forEach(machine => {
-    totalsLines.push(`${machine}: ${totals[machine]}`);
-  });
+  
   // Build merged layout across all selected targets
   const layout = mergeResults(results, tab.selectedTargets.map(t => t.name));
   // Compose summary string for this computation
-  const summaryString = summaryLines.join('\n') + (totalsLines.length > 0 ? '\n\nTotal machines:\n' + totalsLines.join('\n') : '');
+  const summaryString = formatSummaryString(summaryLines, totals);
   // Update tab's summary and layout
   tab.summary = summaryString;
   tab.layout = layout;
@@ -2204,13 +2396,10 @@ function loadState() {
         });
         const totals = {};
         results.forEach(r => summariseMachines(r.root, totals));
-        const totalsLines = [];
-        Object.keys(totals).sort().forEach(machine => {
-          totalsLines.push(`${machine}: ${totals[machine]}`);
-        });
+        
         const layout = mergeResults(results, tab.selectedTargets.map(t => t.name));
         tab.layout = layout;
-        tab.summary = summaryLines.join('\n') + (totalsLines.length > 0 ? '\n\nTotal machines:\n' + totalsLines.join('\n') : '');
+        tab.summary = formatSummaryString(summaryLines, totals);
         renderGraphInContainer(layout, tab.element);
       }
     });
